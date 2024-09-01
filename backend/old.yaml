@@ -1,0 +1,35 @@
+paths:
+  /v1/payees/{payeeId}/activeEbill/{ebillId}:
+    get: 
+      tags:
+        - "ebill"
+      summary: Fetches a payee by Id
+      description: Allows client to get the details of a payee when the payee id is available. 
+      operationId: activateEbill 
+      requestBody:
+        description: "abcls"
+        content: 
+          application/json:  
+            schema: '#/components/schemas/ActivateEbillRequest'
+
+      responses:
+        '200':
+          description: Success - returns Payee Details
+          content:
+            application/json:
+              examples:
+                exampleofSucess:
+                  $ref: 'sucess.json'
+              schema:
+                $ref: '../ /common/shared/v1/shared_defs-yan#/components/schemas/Payee'
+components:
+  schemas:
+    ActivateEbillRequest: 
+      description: "anbljnd"
+      required: 
+        - name
+      type: object
+      properties: 
+        name:
+          description: "alsjlas"
+          type: string
