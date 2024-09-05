@@ -2,25 +2,32 @@ import React, { useState } from 'react';
 import { uploadFile } from '../services/api';
 
 const FileUpload = () => {
-    const [file, setFile] = useState(null);
+    const [files, setFiles] = useState([]);
     const [message, setMessage] = useState('');
 
     const handleFileChange = (e) => {
-        setFile(e.target.files[0]);
+        setFiles(Array.from(e.target.files)); // Convert FileList to an array
     };
 
-    const handleUpload = async () => {
+    const handleUpload = async (e) => {
+        e.preventDefault();
+        if (files.length === 0) {
+            setMessage('Please select files to upload.');
+            return;
+        }
+
         try {
-             await uploadFile(file);
-            setMessage('Upload successful');
+            const response = await uploadFile(files); // Call the updated uploadFiles function
+            setMessage(response.message || 'Upload successful!');
         } catch (error) {
-            setMessage('Upload failed');
+            setMessage('File upload failed.');
         }
     };
-
     return (
+        
         <div>
-            <input type="file" onChange={handleFileChange} />
+            <h1>Upload your image</h1>
+            <input type="file" multiple onChange={handleFileChange} />
             <button onClick={handleUpload}>Upload</button>
             {message && <p>{message}</p>}
         </div>
