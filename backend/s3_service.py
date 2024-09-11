@@ -64,7 +64,8 @@ def index_faces_in_image(bucket_name, filename, collection_id='my_face_collectio
             },
             DetectionAttributes=['ALL'],
             MaxFaces=5,  # Maximum number of faces to index (optional)
-            QualityFilter='AUTO'
+            QualityFilter='AUTO',
+            ExternalImageId=filename
         )
 
         face_records = response['FaceRecords']
@@ -126,3 +127,18 @@ def search_faces_by_image(bucket_name, filename, collection_id='my_face_collecti
 
     except ClientError as e:
         raise Exception(f"Failed to search faces: {e}")
+    
+def list_faces_in_collection(collection_id='my_face_collection'):
+    """
+    List all faces in a Rekognition collection and return their metadata.
+    """
+    try:
+        response = rekognition.list_faces(
+            CollectionId=collection_id,
+            MaxResults=1000  # Adjust as needed
+        )
+        
+        return response['Faces']
+
+    except Exception as e:
+        raise Exception(f"Failed to list faces in collection: {e}")

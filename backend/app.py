@@ -1,6 +1,6 @@
 from flask import Flask, request, jsonify
 from werkzeug.utils import secure_filename
-from s3_service import upload_file_to_s3, index_faces_in_image, search_faces_by_image, detect_faces_in_image
+from s3_service import upload_file_to_s3, index_faces_in_image, search_faces_by_image, list_faces_in_collection
 from flask_cors import CORS
 import boto3
 import os
@@ -93,14 +93,24 @@ def get_image():
         # Search for matching faces in the collection
         matches = search_faces_by_image("zisionimages", filename)
 
+        all_faces = list_faces_in_collection()
+
+
         # Get URLs of matching images from S3
         matching_images = []
         for match in matches:
             face_id = match['Face']['FaceId']
-            matching_images.append({
-                "face_id": face_id,
-                "similarity": match['Similarity']
-            })
+            # Find the corresponding face in the collection
+            for face in all_faces:
+                if face['FaceId'] == face_id:
+                    s3_object_key = face['ExternalImageId']  # Assuming the ExternalImageId is the S3 object key
+                    s3_url = f"https://zisionimages.s3.amazonaws.com/{s3_object_key}"
+                    matching_images.append({
+                        "face_id": face_id,
+                        "similarity": match['Similarity'],
+                        "s3_url": s3_url
+                    })
+                    break
 
         return jsonify({
             "message": "Matching images found",
