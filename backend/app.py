@@ -1,6 +1,6 @@
 from flask import Flask, request, jsonify
 from werkzeug.utils import secure_filename
-from s3_service import upload_file_to_s3, index_faces_in_image, search_faces_by_image, list_faces_in_collection
+from s3_service import upload_file_to_s3, index_faces_in_image, search_faces_by_image, list_faces_in_collection, generate_presigned_url
 from flask_cors import CORS
 import boto3
 import os
@@ -16,7 +16,7 @@ app = Flask(__name__)
 CORS(app)
 
 
-@app.route('/uploadsss', methods=['POST'])
+@app.route('/upload', methods=['POST'])
 def upload_multiple_files():
     """
     Endpoint to upload multiple files to AWS S3 and return their URLs.
@@ -57,7 +57,7 @@ def upload_multiple_files():
         "face_indexing_results": face_indexing_results
     }), 200
 
-@app.route('/upload', methods=['POST'])
+@app.route('/getimage', methods=['POST'])
 def get_image():
     """
     Endpoint to find and return images from S3 that contain the same face as the provided image.
@@ -68,15 +68,16 @@ def get_image():
     # file = request.files['file']  # Get the file from the request
     # if file.filename == '':
     #     return jsonify({"error": "No file selected"}), 400
-    if 'files' not in request.files:
-        return jsonify({"error": "No files part in the request"}), 400
+    if 'file' not in request.files:
+        return jsonify({"error": "No file part in the request"}), 400
 
-    files = request.files.getlist('files')  # Get all files with the 'files' key
-    if not files:
-        return jsonify({"error": "No files selected"}), 400
+# Retrieve the single file with the 'file' key
+    file = request.files['file']  
+
+    if file.filename == '':
+        return jsonify({"error": "No file selected"}), 400
 
     # Secure the filename
-    file = files[0]
     filename = secure_filename(file.filename)
 
     try:
@@ -104,7 +105,7 @@ def get_image():
             for face in all_faces:
                 if face['FaceId'] == face_id:
                     s3_object_key = face['ExternalImageId']  # Assuming the ExternalImageId is the S3 object key
-                    s3_url = f"https://zisionimages.s3.amazonaws.com/{s3_object_key}"
+                    s3_url = generate_presigned_url("zisionimages", s3_object_key)
                     matching_images.append({
                         "face_id": face_id,
                         "similarity": match['Similarity'],
