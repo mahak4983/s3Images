@@ -2,6 +2,7 @@ from flask import Flask, request, jsonify
 from werkzeug.utils import secure_filename
 from s3_service import upload_file_to_s3, index_faces_in_image, search_faces_by_image, list_faces_in_collection, generate_presigned_url
 from flask_cors import CORS
+import hashlib
 import boto3
 import os
 from dotenv import load_dotenv
@@ -14,6 +15,16 @@ load_dotenv()
 app = Flask(__name__)
 
 CORS(app)
+
+def calculate_file_hash(file):
+    """
+    Calculate the MD5 hash of the file content.
+    """
+    hash_md5 = hashlib.md5()
+    for chunk in iter(lambda: file.read(4096), b""):
+        hash_md5.update(chunk)
+    file.seek(0)  # Reset the file pointer after reading
+    return hash_md5.hexdigest()
 
 
 @app.route('/upload', methods=['POST'])
@@ -80,6 +91,9 @@ def get_image():
     # Secure the filename
     filename = secure_filename(file.filename)
 
+    image_bytes = file.read()
+
+
     try:
         # Upload the provided file to S3
         # file_url = upload_file_to_s3(file, filename)
@@ -92,7 +106,7 @@ def get_image():
         #     return jsonify({"message": "No faces detected in the provided image."}), 200
 
         # Search for matching faces in the collection
-        matches = search_faces_by_image("zisionimages", filename)
+        matches = search_faces_by_image("zisionimages", image_bytes)
 
         all_faces = list_faces_in_collection()
 

@@ -13,12 +13,28 @@ s3 = boto3.client(
 )
 
 
+
 rekognition = boto3.client(
     'rekognition',
     aws_access_key_id=os.getenv('AWS_ACCESS_KEY_ID'),
     aws_secret_access_key=os.getenv('AWS_SECRET_ACCESS_KEY'),
     region_name='ap-south-1'
 )
+
+def check_if_image_exists_by_hash(bucket_name, file_hash):
+    """
+    Check if an image with the given hash already exists in S3.
+    We assume that the hash is used as the filename in this case.
+    """
+    try:
+        s3.head_object(Bucket=bucket_name, Key=file_hash)
+        return True  # Image with this hash exists
+    except ClientError as e:
+        if e.response['Error']['Code'] == '404':
+            return False  # Image does not exist
+        else:
+            # Handle other possible errors (permissions, etc.)
+            raise e
 
 
 def upload_file_to_s3(file, filename, bucket_name="zisionimages"):
@@ -104,7 +120,7 @@ def detect_faces_in_image(bucket_name, filename):
     except ClientError as e:
         raise Exception(f"Failed to detect faces: {e}")
 
-def search_faces_by_image(bucket_name, filename, collection_id='my_face_collection'):
+def search_faces_by_image(bucket_name, image_bytes, collection_id='my_face_collection'):
     """
     Search for faces in a Rekognition collection using the provided image.
 
@@ -116,12 +132,7 @@ def search_faces_by_image(bucket_name, filename, collection_id='my_face_collecti
     try:
         response = rekognition.search_faces_by_image(
             CollectionId=collection_id,
-            Image={
-                'S3Object': {
-                    'Bucket': bucket_name,
-                    'Name': filename
-                }
-            },
+            Image={'Bytes': image_bytes},
             MaxFaces=5,
             FaceMatchThreshold=80
         )
