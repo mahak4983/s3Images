@@ -26,7 +26,7 @@ const GetImagesPage = () => {
 
         try {
             // Make a POST request to the backend with the selected image
-            const response = await axios.post('http://localhost:5000/getimage', formData, {
+            const response = await axios.post('http://15.206.107.9/getimage', formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data'
                 }
