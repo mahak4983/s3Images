@@ -1,0 +1,12 @@
+{
+    "rewrites": [
+        {
+            "source": "/getimage",
+            "destination": "http://15.206.107.9/getimage"
+        },
+        {
+            "source": "/upload",
+            "destination": "http://15.206.107.9/upload"
+        }
+    ]
+}
