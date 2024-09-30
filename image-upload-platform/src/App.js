@@ -10,7 +10,7 @@ function App() {
     <Router>
       <Routes>
         <Route path="/" element={<Login />} />
-        <Route path="/upload" element={<FileUpload />} />
+        <Route path="/uploadimage" element={<FileUpload />} />
         <Route path = "/get" element={<GetImagesPage/>} />
       </Routes>
     </Router>
