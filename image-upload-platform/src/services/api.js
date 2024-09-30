@@ -23,7 +23,7 @@ export const uploadFile = async (files) => {
         formData.append('files', file); // Append each file to the form data with the same key
     });
 
-    return api.post('/upload', formData, {
+    return api.post('upload', formData, {
         headers: {
             'Content-Type': 'multipart/form-data',
         },
