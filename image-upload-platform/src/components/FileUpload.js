@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Box, Button, Typography, TextField, Snackbar, BottomNavigation, BottomNavigationAction } from '@mui/material';
+import { Box, Button, Typography, Input, Snackbar, BottomNavigation, BottomNavigationAction } from '@mui/material';
 import UploadIcon from '@mui/icons-material/CloudUpload';
 import GalleryIcon from '@mui/icons-material/PhotoLibrary';
 import ProfileIcon from '@mui/icons-material/Person';
@@ -113,7 +113,7 @@ const FileUpload = () => {
 
                 {/* File Input and Upload Button */}
                 <Box sx={{ display: 'flex', alignItems: 'center', width: '100%' }}>
-                    <TextField
+                    <Input
                         type="file"
                         inputProps={{ multiple: true }}
                         onChange={handleFileChange}
