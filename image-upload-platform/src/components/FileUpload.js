@@ -1,19 +1,20 @@
 import React, { useState } from 'react';
-import myimage from '../assets/bg.png'
-import { uploadFile } from '../services/api';
-import { Box, Button, Typography, TextField, Snackbar, AppBar,Toolbar, IconButton,Drawer,List,ListItem,ListItemText, useMediaQuery } from '@mui/material';
+import { useNavigate } from 'react-router-dom';
+import { Box, Button, Typography, TextField, Snackbar, BottomNavigation, BottomNavigationAction } from '@mui/material';
+import UploadIcon from '@mui/icons-material/CloudUpload';
+import GalleryIcon from '@mui/icons-material/PhotoLibrary';
+import ProfileIcon from '@mui/icons-material/Person';
 import { Alert } from '@mui/material'; // Import Alert component for Snackbar
-import { useTheme } from '@mui/material/styles';
-import MenuIcon from '@mui/icons-material/Menu';
-
+import { uploadFile } from '../services/api'; // Assuming this is your API call function
+import logo from '../assets/ZisionX.png';
+import backgroundImg from '../assets/background-image.jpg'; // Background image for the logo section
 
 const FileUpload = () => {
-    const theme = useTheme();
-    const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+    const navigate = useNavigate(); 
     const [files, setFiles] = useState([]);
     const [message, setMessage] = useState('');
     const [openSnackbar, setOpenSnackbar] = useState(false);
-    const [drawerOpen, setDrawerOpen] = useState(false);
+    const [uploadedImages, setUploadedImages] = useState([]); // Store uploaded images
 
     const handleFileChange = (e) => {
         setFiles(Array.from(e.target.files)); // Convert FileList to an array
@@ -28,8 +29,9 @@ const FileUpload = () => {
         }
 
         try {
-            const response = await uploadFile(files); // Call the updated uploadFiles function
+            const response = await uploadFile(files); // Call the API to upload files
             setMessage(response.message || 'Upload successful!');
+            setUploadedImages([...uploadedImages, ...files]); // Add new files to uploadedImages
             setOpenSnackbar(true);
         } catch (error) {
             setMessage('File upload failed.');
@@ -40,118 +42,147 @@ const FileUpload = () => {
     const handleCloseSnackbar = () => {
         setOpenSnackbar(false);
     };
-    const toggleDrawer = (open) => (event) => {
-        if (event.type === 'keydown' && (event.key === 'Tab' || event.key === 'Shift')) {
-            return;
-        }
-        setDrawerOpen(open);
+
+    const handleNavigation = (path) => {
+        navigate(path); // Navigate to the specified path
     };
 
     return (
-        <>
-            <AppBar position="static" style={{ backgroundColor: 'rgba(33, 150, 243, 0.8)' }}>
-                <Toolbar>
-                    <Typography variant="h6" sx={{ flexGrow: 1 }}>
-                        ZisionX
-                    </Typography>
-                    {!isMobile ? (
-                        <>
-                            <Button color="inherit">Gallery</Button>
-                            <Button color="inherit">Dark Theme</Button>
-                            <Button color="inherit">Blog</Button>
-                            <Button color="inherit">Docs</Button>
-                            <Button color="inherit">Features</Button>
-                        </>
-                    ) : (
-                        <IconButton color="inherit" onClick={toggleDrawer(true)}>
-                            <MenuIcon />
-                        </IconButton>
-                    )}
-                </Toolbar> 
-            </AppBar>
-
-            {/* Drawer for mobile */}
-            <Drawer anchor="left" open={drawerOpen} onClose={toggleDrawer(false)}>
-                <List onClick={toggleDrawer(false)} onKeyDown={toggleDrawer(false)}>
-                    <ListItem button>
-                        <ListItemText primary="Gallery" />
-                    </ListItem>
-                    <ListItem button>
-                        <ListItemText primary="Dark Theme" />
-                    </ListItem>
-                    <ListItem button>
-                        <ListItemText primary="Blog" />
-                    </ListItem>
-                    <ListItem button>
-                        <ListItemText primary="Docs" />
-                    </ListItem>
-                    <ListItem button>
-                        <ListItemText primary="Features" />
-                    </ListItem>
-                </List>
-            </Drawer>
-
-            {/* Header Section with Background Image */}
+        <Box
+            sx={{
+                display: 'flex',
+                flexDirection: 'column',
+                minHeight: '100vh', // Full viewport height
+                color: '#000', // Set text color to black
+                backgroundImage: `url(${backgroundImg})`, // Set background image for the entire page
+                backgroundSize: 'cover', // Cover the entire box
+                backgroundPosition: 'center', // Center the background image
+            }}
+        >
+            {/* Logo Section */}
             <Box
                 sx={{
-                    position: 'relative',
-                    height: '250px', // Adjust height as needed
-                    backgroundImage: `url(${myimage})`, // Your background image path
-                    backgroundSize: 'cover',
-                    backgroundPosition: 'center',
-                    overflow: 'hidden',
+                    // height: '30vh', // Occupies 30% of the screen height
+                    display: 'flex',
+                    alignItems: 'center', // Center the logo vertically
+                    justifyContent: 'flex-start', // Align logo to the left
+                    paddingLeft: '2%', // Add some padding to the left
+                    paddingTop:'20%'
                 }}
             >
-                {/* Overlay with prominent color */}
+                {/* Logo with Blend Effect */}
                 <Box
+                    component="img"
+                    src={logo} // Path to your PNG logo
+                    alt="Logo"
                     sx={{
-                        position: 'absolute',
-                        top: 0,
-                        left: 0,
-                        right: 0,
-                        bottom: 0,
-                        backgroundColor: 'rgba(33, 150, 243, 0.8)', // Adjust opacity here (0.8 for more prominent color)
+                        width: {
+                            xs: '70%', // 70% width for mobile
+                            md: '30%', // 30% width for laptops and above
+                        },
+                        marginBottom: '0%', // Reduced space below the logo
+                        position: 'relative', // Position relative to allow blending
+                        opacity: 1, // Full opacity to emphasize the logo
+                        zIndex: 1, // Ensure the logo appears above the overlay
+                        mixBlendMode: 'multiply', // Blend the logo with the background
                     }}
                 />
-                <Box
-                    sx={{
-                        position: 'relative', // Ensure text is above the overlay
-                        display: 'flex',
-                        justifyContent: 'center',
-                        alignItems: 'center',
-                        height: '100%',
-                        color: '#fff',
-                        textAlign: 'center',
-                    }}
-                >
-                    <Typography variant="h2">Upload Your Imges</Typography>
+            </Box>
+
+            {/* Content Section */}
+            <Box
+                sx={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'flex-start',
+                    justifyContent: 'center',
+                    padding: '2%',
+                    borderRadius: '8px', // Optional: Rounded corners for the content box
+                }}
+            >
+                <Typography variant="h4" gutterBottom align="left" sx={{ width: '100%', fontSize: '2rem' }}>
+                    Upload Your Media
+                </Typography>
+
+                {/* Description text */}
+                <Box sx={{ textAlign: 'left', width: '100%', marginBottom: 2 }}>
+                    <Typography variant="body1" sx={{ fontSize: '1.2rem' }}>- No limit - Upload unlimited images & videos</Typography>
+                    <Typography variant="body1" sx={{ fontSize: '1.2rem' }}>- No compression - Store your media in original resolution</Typography>
+                    <Typography variant="body1" sx={{ fontSize: '1.2rem' }}>- No worries - Secure & safe storage</Typography>
+                </Box>
+
+                {/* File Input and Upload Button */}
+                <Box sx={{ display: 'flex', alignItems: 'center', width: '100%' }}>
+                    <TextField
+                        type="file"
+                        inputProps={{ multiple: true }}
+                        onChange={handleFileChange}
+                        sx={{
+                            marginRight: 2,
+                            flexGrow: 1,
+                            borderRadius: '20px', // Round corners
+                            '& .MuiOutlinedInput-root': {
+                                borderRadius: '20px', // Round corners for input
+                            },
+                        }}
+                    />
+                    <Button
+                        variant="contained"
+                        sx={{
+                            backgroundColor: '#707070', // Greyish color
+                            '&:hover': {
+                                backgroundColor: '#505050', // Slightly darker on hover
+                            },
+                            padding: '10px 20px',
+                            textTransform: 'none',
+                            borderRadius: '20px', // Round corners for button
+                        }}
+                        onClick={handleUpload}
+                    >
+                        Upload
+                    </Button>
                 </Box>
             </Box>
-        <Box
-                sx={{ display: 'flex', justifyContent: 'center', marginTop: '20px', flexDirection: isMobile ? 'column' : 'row' }}
-        >
-            
-            <TextField
-                type="file"
-                inputProps={{ multiple: true }}
-                onChange={handleFileChange}
-                sx={{ marginBottom: 2 }}
-            />
-            <Button
-                variant="contained"
-                color="primary"
-                onClick={handleUpload}
-                sx={{ padding: '10px 20px' }}
-            >
-                Upload
-            </Button>
+
+            {/* Uploaded Images Section */}
+            {uploadedImages.length > 0 && (
+                <Box sx={{ marginTop: 4, width: '100%', padding: '2%' }}>
+                    <Typography variant="h5" align="left" sx={{ marginBottom: 2, fontSize: '1.5rem' }}>
+                        Your uploaded images
+                    </Typography>
+                    <Box
+                        sx={{
+                            display: 'grid',
+                            gridTemplateColumns: 'repeat(auto-fill, minmax(100px, 1fr))',
+                            gap: 2,
+                        }}
+                    >
+                        {uploadedImages.map((file, index) => (
+                            <Box
+                                key={index}
+                                component="img"
+                                src={URL.createObjectURL(file)}
+                                alt={`uploaded-${index}`}
+                                sx={{ width: '100%', height: 'auto', borderRadius: 2 }}
+                            />
+                        ))}
+                    </Box>
+                </Box>
+            )}
+
+            <BottomNavigation showLabels sx={{ mt: 4 }}>
+                <BottomNavigationAction label="Upload" icon={<UploadIcon />} onClick={() => handleNavigation('/uploadimage')} />
+                <BottomNavigationAction label="Gallery" icon={<GalleryIcon />} onClick={() => handleNavigation('/get')} />
+                <BottomNavigationAction label="Profile" icon={<ProfileIcon />} onClick={() => handleNavigation('/profile')} />
+            </BottomNavigation>
+
+            {/* Snackbar for success/failure message */}
             <Snackbar open={openSnackbar} autoHideDuration={6000} onClose={handleCloseSnackbar}>
                 <Alert onClose={handleCloseSnackbar} severity={message.includes('failed') ? 'error' : 'success'}>
                     {message}
                 </Alert>
             </Snackbar>
         </Box>
-        </>
     );
 };
 
