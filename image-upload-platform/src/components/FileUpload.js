@@ -1,23 +1,24 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Box, Button, Typography, Input, Snackbar, BottomNavigation, BottomNavigationAction } from '@mui/material';
+import { Box, Button, Typography, Snackbar, BottomNavigation, BottomNavigationAction, Container } from '@mui/material';
 import UploadIcon from '@mui/icons-material/CloudUpload';
 import GalleryIcon from '@mui/icons-material/PhotoLibrary';
 import ProfileIcon from '@mui/icons-material/Person';
-import { Alert } from '@mui/material'; // Import Alert component for Snackbar
-import { uploadFile } from '../services/api'; // Assuming this is your API call function
-import logo from '../assets/ZisionX.png';
-import backgroundImg from '../assets/background-image.jpg'; // Background image for the logo section
+import { Alert } from '@mui/material';
+import { uploadFile } from '../services/api'; // Your API call function
+import logo from '../assets/ZisionX.png'; // Path to your logo
+import backgroundImg from '../assets/background-image.jpg'; // Path to your background image
 
 const FileUpload = () => {
-    const navigate = useNavigate(); 
+    const navigate = useNavigate();
     const [files, setFiles] = useState([]);
     const [message, setMessage] = useState('');
     const [openSnackbar, setOpenSnackbar] = useState(false);
     const [uploadedImages, setUploadedImages] = useState([]); // Store uploaded images
+    const [loading, setLoading] = useState(false); // Add a loading state
 
     const handleFileChange = (e) => {
-        setFiles(Array.from(e.target.files)); // Convert FileList to an array
+        setFiles(Array.from(e.target.files)); // Convert FileList to array
     };
 
     const handleUpload = async (e) => {
@@ -28,6 +29,8 @@ const FileUpload = () => {
             return;
         }
 
+        setLoading(true);
+
         try {
             const response = await uploadFile(files); // Call the API to upload files
             setMessage(response.message || 'Upload successful!');
@@ -36,6 +39,8 @@ const FileUpload = () => {
         } catch (error) {
             setMessage('File upload failed.');
             setOpenSnackbar(true);
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -52,108 +57,95 @@ const FileUpload = () => {
             sx={{
                 display: 'flex',
                 flexDirection: 'column',
-                minHeight: '100vh', // Full viewport height
-                color: '#000', // Set text color to black
-                backgroundImage: `url(${backgroundImg})`, // Set background image for the entire page
-                backgroundSize: 'cover', // Cover the entire box
-                backgroundPosition: 'center', // Center the background image
+                height: '100vh',
+                backgroundImage: `url(${backgroundImg})`,
+                backgroundSize: 'cover',
+                backgroundPosition: 'center',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                color: '#000',
             }}
         >
-            {/* Logo Section */}
-            <Box
+            {/* Logo and Header Section */}
+            <Container
                 sx={{
-                    // height: '30vh', // Occupies 30% of the screen height
-                    display: 'flex',
-                    alignItems: 'center', // Center the logo vertically
-                    justifyContent: 'flex-start', // Align logo to the left
-                    paddingLeft: '2%', // Add some padding to the left
-                    paddingTop:'20%'
+                    textAlign: 'center',
+                    padding: '30px',
+                    backgroundColor: 'rgba(255, 255, 255, 0.8)', // Semi-transparent white overlay
+                    borderRadius: '15px',
+                    width: '80%',
+                    maxWidth: '400px',
+                    marginTop: '20px',
                 }}
             >
-                {/* Logo with Blend Effect */}
-                <Box
-                    component="img"
-                    src={logo} // Path to your PNG logo
-                    alt="Logo"
-                    sx={{
-                        width: {
-                            xs: '70%', // 70% width for mobile
-                            md: '30%', // 30% width for laptops and above
-                        },
-                        marginBottom: '0%', // Reduced space below the logo
-                        position: 'relative', // Position relative to allow blending
-                        opacity: 1, // Full opacity to emphasize the logo
-                        zIndex: 1, // Ensure the logo appears above the overlay
-                        mixBlendMode: 'multiply', // Blend the logo with the background
-                    }}
-                />
-            </Box>
-
-            {/* Content Section */}
-            <Box
-                sx={{
-                    display: 'flex',
-                    flexDirection: 'column',
-                    alignItems: 'flex-start',
-                    justifyContent: 'center',
-                    padding: '2%',
-                    borderRadius: '8px', // Optional: Rounded corners for the content box
-                }}
-            >
-                <Typography variant="h4" gutterBottom align="left" sx={{ width: '100%', fontSize: '2rem' }}>
+                <img src={logo} alt="ZisionX Logo" style={{ width: '200px', marginBottom: '20px' }} />
+                <Typography variant="h5" sx={{ fontWeight: 'bold' }}>
                     Upload Your Media
                 </Typography>
-
-                {/* Description text */}
-                <Box sx={{ textAlign: 'left', width: '100%', marginBottom: 2 }}>
-                    <Typography variant="body1" sx={{ fontSize: '1.2rem' }}>- No limit - Upload unlimited images & videos</Typography>
-                    <Typography variant="body1" sx={{ fontSize: '1.2rem' }}>- No compression - Store your media in original resolution</Typography>
-                    <Typography variant="body1" sx={{ fontSize: '1.2rem' }}>- No worries - Secure & safe storage</Typography>
-                </Box>
+                <Typography variant="body1" sx={{ marginBottom: 2 }}>
+                    No limit - Upload unlimited images & videos
+                </Typography>
+                <Typography variant="body1" sx={{ marginBottom: 2 }}>
+                    No compression - Store your media in original resolution
+                </Typography>
+                <Typography variant="body1" sx={{ marginBottom: 2 }}>
+                    No worries - Secure & safe storage
+                </Typography>
 
                 {/* File Input and Upload Button */}
-                <Box sx={{ display: 'flex', alignItems: 'center', width: '100%' }}>
-                    <Input
+                <Box sx={{ display: 'flex', justifyContent: 'center', gap: 2, marginTop: '20px' }}>
+                    <input
                         type="file"
-                        inputProps={{ multiple: true }}
+                        accept="image/*"
+                        multiple
                         onChange={handleFileChange}
-                        sx={{
-                            marginRight: 2,
-                            flexGrow: 1,
-                            borderRadius: '20px', // Round corners
-                            '& .MuiOutlinedInput-root': {
-                                borderRadius: '20px', // Round corners for input
-                            },
-                        }}
+                        style={{ display: 'none' }}
+                        id="upload-button"
                     />
+                    <label htmlFor="upload-button">
+                        <Button
+                            variant="contained"
+                            component="span"
+                            sx={{
+                                backgroundColor: '#b0b0b0',
+                                color: '#fff',
+                                padding: '10px 30px',
+                                borderRadius: '30px',
+                                '&:hover': { backgroundColor: '#909090' },
+                                whiteSpace: 'nowrap',
+                            }}
+                        >
+                            {loading ? 'Uploading...' : 'Add Files'}
+                        </Button>
+                    </label>
                     <Button
                         variant="contained"
-                        sx={{
-                            backgroundColor: '#707070', // Greyish color
-                            '&:hover': {
-                                backgroundColor: '#505050', // Slightly darker on hover
-                            },
-                            padding: '10px 20px',
-                            textTransform: 'none',
-                            borderRadius: '20px', // Round corners for button
-                        }}
                         onClick={handleUpload}
+                        disabled={loading || files.length === 0}
+                        sx={{
+                            backgroundColor: '#b0b0b0',
+                            color: '#fff',
+                            padding: '10px 30px',
+                            borderRadius: '30px',
+                            '&:hover': { backgroundColor: '#909090' },
+                            whiteSpace: 'nowrap',
+                        }}
                     >
-                        Upload
+                        {loading ? 'Uploading...' : 'Upload'}
                     </Button>
                 </Box>
-            </Box>
+            </Container>
 
             {/* Uploaded Images Section */}
             {uploadedImages.length > 0 && (
-                <Box sx={{ marginTop: 4, width: '100%', padding: '2%' }}>
-                    <Typography variant="h5" align="left" sx={{ marginBottom: 2, fontSize: '1.5rem' }}>
-                        Your uploaded images
+                <Container sx={{ textAlign: 'center', marginTop: '20px', paddingBottom: '20px' }}>
+                    <Typography variant="h6" sx={{ fontWeight: 'bold', marginBottom: '10px' }}>
+                        Uploaded Images
                     </Typography>
                     <Box
                         sx={{
                             display: 'grid',
-                            gridTemplateColumns: 'repeat(auto-fill, minmax(100px, 1fr))',
+                            gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))',
                             gap: 2,
                         }}
                     >
@@ -167,13 +159,22 @@ const FileUpload = () => {
                             />
                         ))}
                     </Box>
-                </Box>
+                </Container>
             )}
 
-            <BottomNavigation showLabels sx={{ mt: 4 }}>
+            {/* Bottom Navigation */}
+            <BottomNavigation
+                showLabels
+                sx={{
+                    width: '100%',
+                    backgroundColor: 'rgba(255, 255, 255, 0.8)',
+                    position: 'fixed',
+                    bottom: 0,
+                }}
+            >
                 <BottomNavigationAction label="Upload" icon={<UploadIcon />} onClick={() => handleNavigation('/uploadimage')} />
                 <BottomNavigationAction label="Gallery" icon={<GalleryIcon />} onClick={() => handleNavigation('/get')} />
-                <BottomNavigationAction label="Profile" icon={<ProfileIcon />} onClick={() => handleNavigation('/')} />
+                <BottomNavigationAction label="Profile" icon={<ProfileIcon />} onClick={() => handleNavigation('/profile')} />
             </BottomNavigation>
 
             {/* Snackbar for success/failure message */}
