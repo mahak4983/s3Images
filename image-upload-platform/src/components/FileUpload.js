@@ -173,7 +173,7 @@ const FileUpload = () => {
             <BottomNavigation showLabels sx={{ mt: 4 }}>
                 <BottomNavigationAction label="Upload" icon={<UploadIcon />} onClick={() => handleNavigation('/uploadimage')} />
                 <BottomNavigationAction label="Gallery" icon={<GalleryIcon />} onClick={() => handleNavigation('/get')} />
-                <BottomNavigationAction label="Profile" icon={<ProfileIcon />} onClick={() => handleNavigation('/profile')} />
+                <BottomNavigationAction label="Profile" icon={<ProfileIcon />} onClick={() => handleNavigation('/')} />
             </BottomNavigation>
 
             {/* Snackbar for success/failure message */}
