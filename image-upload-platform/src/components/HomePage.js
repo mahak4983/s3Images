@@ -54,6 +54,7 @@ function HomePage() {
                 <Box sx={{ display: 'flex', justifyContent: 'center', gap: 2, marginTop: '30px' }}>
                     <Button
                         variant="contained"
+                        onClick={() => handleNavigation('/uploadimage')}
                         sx={{
                             backgroundColor: '#b0b0b0',
                             color: '#fff',
@@ -66,6 +67,7 @@ function HomePage() {
                     </Button>
                     <Button
                         variant="contained"
+                        onClick={() => handleNavigation('/get')}
                         sx={{
                             backgroundColor: '#b0b0b0',
                             color: '#fff',
