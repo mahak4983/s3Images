@@ -7,6 +7,19 @@
         {
             "source": "/upload",
             "destination": "http://15.206.107.9/upload"
+        },
+        {
+            "source": "/check-user",
+            "destination": "http://15.206.107.9/check-user"
+        },
+        {
+            "source": "/verify-otp",
+            "destination": "http://15.206.107.9/verify-otp"
+        },
+        {
+            "source": "/update-role",
+            "destination": "http://15.206.107.9/update-role"
         }
+        
     ]
 }

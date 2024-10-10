@@ -1,4 +1,5 @@
 from flask import Flask, request, jsonify
+from bson.json_util import dumps
 from werkzeug.utils import secure_filename
 from s3_service import upload_file_to_s3, index_faces_in_image, search_faces_by_image, list_faces_in_collection, generate_presigned_url
 from flask_cors import CORS
@@ -6,6 +7,10 @@ import hashlib
 import boto3
 import os
 from dotenv import load_dotenv
+
+from pymongo.mongo_client import MongoClient
+from pymongo.server_api import ServerApi
+from flask_pymongo import PyMongo
 
 # Load environment variables
 load_dotenv()
@@ -16,15 +21,72 @@ app = Flask(__name__)
 
 CORS(app, resources={r"/*": {"origins": "*"}})
 
-def calculate_file_hash(file):
-    """
-    Calculate the MD5 hash of the file content.
-    """
-    hash_md5 = hashlib.md5()
-    for chunk in iter(lambda: file.read(4096), b""):
-        hash_md5.update(chunk)
-    file.seek(0)  # Reset the file pointer after reading
-    return hash_md5.hexdigest()
+uri = f"mongodb+srv://{os.getenv('MONGODB_USER')}:{os.getenv('MONGODB_PASSWORD')}@cluster0.2ssli.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
+client = MongoClient(uri, server_api=ServerApi('1'))
+# Send a ping to confirm a successful connection
+try:
+    client.admin.command('ping')
+    print("Pinged your deployment. You successfully connected to MongoDB!")
+except Exception as e:
+    print(e)
+
+db = client['ZisionX']  # Replace 'ZisionX' with your actual database name
+users_collection = db['users'] 
+
+OTP = "66666"
+
+# Check if user is registered
+@app.route('/check-user', methods=['POST'])
+def check_user():
+    data = request.json
+    mobile_number = data.get('mobile_number')
+
+    # Query MongoDB for user by mobile number
+    user = users_collection.find_one({"number": mobile_number})
+    if user:
+        return jsonify({"status": "registered", "user": dumps(user)}), 200
+    else:
+        new_user = {"number": mobile_number, "role": None}
+        users_collection.insert_one(new_user)
+        return jsonify({"status": "not_registered", "message": "User registered successfully!"}), 201
+        
+
+# Register a new user
+@app.route('/register', methods=['POST'])
+def register_user():
+    data = request.json
+    mobile_number = data.get('mobile_number')
+    
+    # Check if user already exists
+    if users_collection.find_one({"number": mobile_number}):
+        return jsonify({"status": "error", "message": "User already exists!"}), 400
+    
+    # Register user
+    new_user = {"number": mobile_number, "role": None}
+    users_collection.insert_one(new_user)
+    return jsonify({"status": "success", "message": "User registered successfully!"}), 201
+
+# Update user role
+@app.route('/update-role', methods=['POST'])
+def update_role():
+    data = request.json
+    mobile_number = data.get('mobile_number')
+    selected_role = data.get('role')
+
+    # Update role in MongoDB
+    users_collection.update_one({"number": mobile_number}, {"$set": {"role": selected_role}})
+    return jsonify({"status": "success", "message": "Role updated successfully!"}), 200
+
+# Verify OTP (Hardcoded for now)
+@app.route('/verify-otp', methods=['POST'])
+def verify_otp():
+    data = request.json
+    entered_otp = data.get('otp')
+
+    if entered_otp == OTP:
+        return jsonify({"status": "success", "message": "OTP verified!"}), 200
+    else:
+        return jsonify({"status": "error", "message": "Invalid OTP!"}), 400
 
 
 @app.route('/upload', methods=['POST'])

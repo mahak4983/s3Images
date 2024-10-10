@@ -1,24 +1,16 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Button, Box, Typography, Container, Card, CardMedia, CardContent, IconButton, BottomNavigation, BottomNavigationAction } from '@mui/material';
-import UploadIcon from '@mui/icons-material/CloudUpload';
-import GalleryIcon from '@mui/icons-material/PhotoLibrary';
-import ProfileIcon from '@mui/icons-material/Person';
+import { Button, Box, Typography, Container, Card, CardMedia, CardContent, IconButton } from '@mui/material';
 import DownloadIcon from '@mui/icons-material/Download';
 import axios from 'axios';
 
 import logo from '../assets/ZisionX.png'; // Path to logo
 import backgroundImage from '../assets/background-image.jpg'; // Path to background
+import BottomNav from './BottomNav';
 
 const GetImagesPage = () => {
     const [images, setImages] = useState([]);
     const [selectedFile, setSelectedFile] = useState(null);
     const [loading, setLoading] = useState(false);
-    const navigate = useNavigate();
-
-    const handleNavigation = (path) => {
-        navigate(path);
-    };
 
     const handleFileChange = (event) => {
         setSelectedFile(event.target.files[0]);
@@ -190,20 +182,7 @@ const GetImagesPage = () => {
             </Box>
 
             {/* Fixed Footer Navigation */}
-            <BottomNavigation
-                showLabels
-                sx={{
-                    width: '100%',
-                    backgroundColor: 'rgba(255, 255, 255, 0.8)',
-                    position: 'fixed',
-                    bottom: 0,
-                    left: 0,
-                }}
-            >
-                <BottomNavigationAction label="Upload" icon={<UploadIcon />} onClick={() => handleNavigation('/uploadimage')} />
-                <BottomNavigationAction label="Gallery" icon={<GalleryIcon />} onClick={() => handleNavigation('/get')} />
-                <BottomNavigationAction label="Profile" icon={<ProfileIcon />} onClick={() => handleNavigation('/')} />
-            </BottomNavigation>
+            <BottomNav />
         </Box>
     );
 };

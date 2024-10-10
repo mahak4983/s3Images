@@ -1,14 +1,19 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Button, Box, Typography, Container, BottomNavigation, BottomNavigationAction } from '@mui/material';
-import UploadIcon from '@mui/icons-material/CloudUpload';
-import GalleryIcon from '@mui/icons-material/PhotoLibrary';
-import ProfileIcon from '@mui/icons-material/Person';
+import { Button, Box, Typography, Container } from '@mui/material';
 import backgroundImage from '../assets/background-image.jpg';
 import logo from '../assets/ZisionX.png';
+import BottomNav from './BottomNav';
 
 function HomePage() {
     const navigate = useNavigate();
+    const [isLoggedIn, setIsLoggedIn] = useState(false); // Simulate login status
+
+    useEffect(() => {
+        // Check login status from localStorage
+        const loggedInStatus = localStorage.getItem('isLoggedIn') === 'true';
+        setIsLoggedIn(loggedInStatus);
+    }, []);
 
     const handleNavigation = (path) => {
         navigate(path); // Navigate to the specified path
@@ -20,8 +25,7 @@ function HomePage() {
                 backgroundImage: `url(${backgroundImage})`,
                 backgroundSize: 'cover',
                 backgroundPosition: 'center',
-                height: '100vh',  // Ensure full view height
-                overflow: 'hidden', // Prevent any overflow
+                height: '100vh',
                 display: 'flex',
                 flexDirection: 'column',
                 justifyContent: 'space-between',
@@ -37,7 +41,7 @@ function HomePage() {
                     width: '80%',
                     maxWidth: '400px',
                     marginTop: '20px',
-                    overflow: 'hidden',  // Prevent content overflow
+                    overflow: 'hidden',
                 }}
             >
                 <img src={logo} alt="ZisionX Logo" style={{ width: '200px', marginBottom: '20px' }} />
@@ -51,50 +55,60 @@ function HomePage() {
                 <Typography variant="body1" gutterBottom>
                     Seamless integration with online platforms
                 </Typography>
+
+                {/* Conditional Rendering for Buttons */}
                 <Box sx={{ display: 'flex', justifyContent: 'center', gap: 2, marginTop: '30px' }}>
-                    <Button
-                        variant="contained"
-                        onClick={() => handleNavigation('/uploadimage')}
-                        sx={{
-                            backgroundColor: '#b0b0b0',
-                            color: '#fff',
-                            '&:hover': { backgroundColor: '#909090' },
-                            padding: '10px 30px',
-                            fontSize: '16px',
-                        }}
-                    >
-                        Upload
-                    </Button>
-                    <Button
-                        variant="contained"
-                        onClick={() => handleNavigation('/get')}
-                        sx={{
-                            backgroundColor: '#b0b0b0',
-                            color: '#fff',
-                            '&:hover': { backgroundColor: '#909090' },
-                            padding: '10px 30px',
-                            fontSize: '16px',
-                        }}
-                    >
-                        Download
-                    </Button>
+                    {isLoggedIn ? (
+                        <>
+                            <Button
+                                variant="contained"
+                                onClick={() => handleNavigation('/uploadimage')}
+                                sx={{
+                                    backgroundColor: '#b0b0b0',
+                                    color: '#fff',
+                                    '&:hover': { backgroundColor: '#909090' },
+                                    padding: '10px 30px',
+                                    fontSize: '16px',
+                                }}
+                            >
+                                Upload
+                            </Button>
+                            <Button
+                                variant="contained"
+                                onClick={() => handleNavigation('/get')}
+                                sx={{
+                                    backgroundColor: '#b0b0b0',
+                                    color: '#fff',
+                                    '&:hover': { backgroundColor: '#909090' },
+                                    padding: '10px 30px',
+                                    fontSize: '16px',
+                                }}
+                            >
+                                Download
+                            </Button>
+                            
+                        </>
+                    ) : (
+                        <>
+                            <Button
+                                variant="contained"
+                                onClick={() => handleNavigation('/login')}
+                                sx={{
+                                    backgroundColor: '#b0b0b0',
+                                    color: '#fff',
+                                    '&:hover': { backgroundColor: '#909090' },
+                                    padding: '10px 30px',
+                                    fontSize: '16px',
+                                }}
+                            >
+                                Login to Continue
+                            </Button>
+                        </>
+                    )}
                 </Box>
             </Container>
 
-            <BottomNavigation
-                showLabels
-                sx={{
-                    width: '100%',
-                    position: 'absolute',
-                    bottom: 0,
-                    left: 0,
-                    right: 0,
-                }}
-            >
-                <BottomNavigationAction label="Upload" icon={<UploadIcon />} onClick={() => handleNavigation('/uploadimage')} />
-                <BottomNavigationAction label="Gallery" icon={<GalleryIcon />} onClick={() => handleNavigation('/get')} />
-                <BottomNavigationAction label="Profile" icon={<ProfileIcon />} onClick={() => handleNavigation('/')} />
-            </BottomNavigation>
+            <BottomNav/>
         </Box>
     );
 }

@@ -1,16 +1,12 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Box, Button, Typography, Snackbar, BottomNavigation, BottomNavigationAction, Container } from '@mui/material';
-import UploadIcon from '@mui/icons-material/CloudUpload';
-import GalleryIcon from '@mui/icons-material/PhotoLibrary';
-import ProfileIcon from '@mui/icons-material/Person';
+import { Box, Button, Typography, Snackbar, Container } from '@mui/material';
 import { Alert } from '@mui/material';
 import { uploadFile } from '../services/api'; // Your API call function
 import logo from '../assets/ZisionX.png'; // Path to your logo
 import backgroundImg from '../assets/background-image.jpg'; // Path to your background image
+import BottomNav from './BottomNav';
 
 const FileUpload = () => {
-    const navigate = useNavigate();
     const [files, setFiles] = useState([]);
     const [message, setMessage] = useState('');
     const [openSnackbar, setOpenSnackbar] = useState(false);
@@ -46,10 +42,6 @@ const FileUpload = () => {
 
     const handleCloseSnackbar = () => {
         setOpenSnackbar(false);
-    };
-
-    const handleNavigation = (path) => {
-        navigate(path); // Navigate to the specified path
     };
 
     return (
@@ -163,19 +155,7 @@ const FileUpload = () => {
             )}
 
             {/* Bottom Navigation */}
-            <BottomNavigation
-                showLabels
-                sx={{
-                    width: '100%',
-                    backgroundColor: 'rgba(255, 255, 255, 0.8)',
-                    position: 'fixed',
-                    bottom: 0,
-                }}
-            >
-                <BottomNavigationAction label="Upload" icon={<UploadIcon />} onClick={() => handleNavigation('/uploadimage')} />
-                <BottomNavigationAction label="Gallery" icon={<GalleryIcon />} onClick={() => handleNavigation('/get')} />
-                <BottomNavigationAction label="Profile" icon={<ProfileIcon />} onClick={() => handleNavigation('/')} />
-            </BottomNavigation>
+            <BottomNav/>
 
             {/* Snackbar for success/failure message */}
             <Snackbar open={openSnackbar} autoHideDuration={6000} onClose={handleCloseSnackbar}>
