@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Button, Box, Typography, Container, Card, CardMedia, CardContent, IconButton } from '@mui/material';
+import { Button, Box, Typography, Container, Card, CardMedia, CardContent, IconButton, TextField } from '@mui/material';
 import DownloadIcon from '@mui/icons-material/Download';
 import axios from 'axios';
 
@@ -10,10 +10,15 @@ import BottomNav from './BottomNav';
 const GetImagesPage = () => {
     const [images, setImages] = useState([]);
     const [selectedFile, setSelectedFile] = useState(null);
+    const [phoneNumber, setPhoneNumber] = useState(''); // New state for phone number
     const [loading, setLoading] = useState(false);
 
     const handleFileChange = (event) => {
         setSelectedFile(event.target.files[0]);
+    };
+
+    const handlePhoneNumberChange = (event) => {
+        setPhoneNumber(event.target.value); // Set phone number state
     };
 
     const fetchMatchingImages = async () => {
@@ -26,6 +31,7 @@ const GetImagesPage = () => {
 
         const formData = new FormData();
         formData.append('file', selectedFile);
+        formData.append('event_id', phoneNumber); // Send the phone number as event_id
 
         try {
             const response = await axios.post('/getimage', formData, {
@@ -70,12 +76,12 @@ const GetImagesPage = () => {
                 sx={{
                     textAlign: 'center',
                     padding: '30px',
-                    backgroundColor: 'rgba(255, 255, 255, 0.8)', // White overlay
+                    backgroundColor: 'rgba(255, 255, 255, 0.8)',
                     borderRadius: '15px',
                     width: '80%',
                     maxWidth: '400px',
                     marginTop: '20px',
-                    overflow: 'hidden', // Ensures no overflow
+                    overflow: 'hidden',
                 }}
             >
                 <img src={logo} alt="ZisionX Logo" style={{ width: '200px', marginBottom: '20px' }} />
@@ -92,8 +98,17 @@ const GetImagesPage = () => {
                     No worries - Find & share your images easily & efficiently
                 </Typography>
 
-                {/* Upload and Search Buttons */}
-                <Box sx={{ display: 'flex', justifyContent: 'center', gap: 2, marginTop: '20px' }}>
+                {/* Phone Number Input and Upload/Find Buttons */}
+                <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2, marginTop: '20px' }}>
+                    {/* Phone Number Input Field */}
+                    <TextField
+                        label="Enter Event Id"
+                        variant="outlined"
+                        value={phoneNumber}
+                        onChange={handlePhoneNumberChange}
+                        sx={{ width: '150px' }}
+                    />
+
                     <input
                         accept="image/*"
                         style={{ display: 'none' }}
@@ -106,29 +121,30 @@ const GetImagesPage = () => {
                             variant="contained"
                             component="span"
                             sx={{
-                                backgroundColor: '#b0b0b0', // Consistent with homepage buttons
+                                backgroundColor: '#b0b0b0',
                                 color: '#fff',
-                                padding: '10px 15px', // Adjusted padding to fit within container
+                                padding: '10px 15px',
                                 borderRadius: '30px',
-                                minWidth: '140px', // Adjusted to prevent overflow
-                                whiteSpace: 'nowrap', // Prevent text from wrapping
+                                minWidth: '140px',
+                                whiteSpace: 'nowrap',
                                 '&:hover': { backgroundColor: '#909090' },
                             }}
                         >
                             {loading ? 'Uploading...' : 'Add your face'}
                         </Button>
                     </label>
+
                     <Button
                         variant="contained"
                         onClick={fetchMatchingImages}
-                        disabled={loading || !selectedFile}
+                        disabled={loading || !selectedFile || !phoneNumber}
                         sx={{
                             backgroundColor: '#b0b0b0',
                             color: '#fff',
-                            padding: '10px 15px', // Adjusted padding to fit within container
+                            padding: '10px 15px',
                             borderRadius: '30px',
-                            minWidth: '140px', // Adjusted to prevent overflow
-                            whiteSpace: 'nowrap', // Prevent text from wrapping
+                            minWidth: '140px',
+                            whiteSpace: 'nowrap',
                             '&:hover': { backgroundColor: '#909090' },
                         }}
                     >

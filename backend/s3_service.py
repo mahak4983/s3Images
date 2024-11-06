@@ -17,6 +17,39 @@ rekognition = boto3.client(
     region_name='ap-south-1'
 )
 
+def create_s3_bucket(bucket_name):
+    """
+    Create a new S3 bucket.
+    
+    :param bucket_name: The name of the bucket to be created
+    """
+    try:
+        s3.create_bucket(
+            Bucket=bucket_name,
+            CreateBucketConfiguration={
+                'LocationConstraint': 'ap-south-1'  # Adjust the region as per your setup
+            }
+        )
+        print(f"S3 bucket {bucket_name} created successfully.")
+    except Exception as e:
+        print(f"Error creating S3 bucket: {e}")
+        raise e
+
+
+def create_rekognition_collection(collection_id):
+    """
+    Create a new Rekognition collection.
+    
+    :param collection_id: The collection ID (e.g., the user's mobile number)
+    """
+    try:
+        rekognition.create_collection(CollectionId=collection_id)
+        print(f"Rekognition collection {collection_id} created successfully.")
+    except Exception as e:
+        print(f"Error creating Rekognition collection: {e}")
+        raise e
+
+
 def check_if_image_exists_by_hash(bucket_name, file_hash):
     """
     Check if an image with the given hash already exists in S3.
@@ -69,6 +102,7 @@ def index_faces_in_image(bucket_name, filename, collection_id='my_face_collectio
     :return: Response from Rekognition or raises an error if indexing fails
     """
     try:
+        external_image_id = f"{bucket_name}_{filename}"
         response = rekognition.index_faces(
             CollectionId=collection_id,
             Image={
@@ -80,7 +114,7 @@ def index_faces_in_image(bucket_name, filename, collection_id='my_face_collectio
             DetectionAttributes=['ALL'],
             MaxFaces=5,  # Maximum number of faces to index (optional)
             QualityFilter='AUTO',
-            ExternalImageId=filename
+            ExternalImageId=external_image_id
         )
 
         face_records = response['FaceRecords']

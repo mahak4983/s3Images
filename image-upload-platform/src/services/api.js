@@ -23,6 +23,12 @@ export const uploadFile = async (files) => {
         formData.append('files', file); // Append each file to the form data with the same key
     });
 
+    // Get mobile_number from localStorage and append it to the form data
+    const mobileNumber = localStorage.getItem('mobile_number');
+    if (mobileNumber) {
+        formData.append('mobile_number', mobileNumber);
+    }
+
     return api.post('upload', formData, {
         headers: {
             'Content-Type': 'multipart/form-data',

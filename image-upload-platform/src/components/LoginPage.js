@@ -17,10 +17,12 @@ function LoginPage() {
             });
 
             const data = await response.json();
+            let user = JSON.parse(data.user);
             if (data.status === 'registered') {
                 // Save mobile number and role if the user is registered
                 localStorage.setItem('mobile_number', mobileNumber);
-                localStorage.setItem('role', data.user.role);
+                console.log(user);
+                localStorage.setItem('role', user.role);
                 navigate('/otp'); // Redirect to home or another page for registered users
             } else if (data.status === 'not_registered') {
                 // Save mobile number for not registered users
