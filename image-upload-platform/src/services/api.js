@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const api = axios.create({
-    baseURL: process.env.REACT_APP_API_URL || '/', // Your backend URL
+    baseURL: process.env.REACT_APP_API_BASE_URL, // Your backend URL
 });
 
 // api.interceptors.request.use(
@@ -29,7 +29,7 @@ export const uploadFile = async (files) => {
         formData.append('mobile_number', mobileNumber);
     }
 
-    return api.post('upload', formData, {
+    return api.post('/upload', formData, {
         headers: {
             'Content-Type': 'multipart/form-data',
         },

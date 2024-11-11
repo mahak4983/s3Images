@@ -4,13 +4,16 @@ import { useNavigate } from 'react-router-dom';
 import backgroundImage from '../assets/background-image.jpg';
 import logo from '../assets/ZisionX.png';
 
+
+const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
+
 function OTPPage() {
     const [otp, setOtp] = useState('');
     const navigate = useNavigate();
 
     const handleVerifyOtp = async () => {
         try {
-            const response = await fetch('/verify-otp', {
+            const response = await fetch(`${API_BASE_URL}/update-role`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ otp }),

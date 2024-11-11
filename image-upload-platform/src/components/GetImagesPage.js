@@ -7,6 +7,8 @@ import logo from '../assets/ZisionX.png'; // Path to logo
 import backgroundImage from '../assets/background-image.jpg'; // Path to background
 import BottomNav from './BottomNav';
 
+const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
+
 const GetImagesPage = () => {
     const [images, setImages] = useState([]);
     const [selectedFile, setSelectedFile] = useState(null);
@@ -34,7 +36,7 @@ const GetImagesPage = () => {
         formData.append('event_id', phoneNumber); // Send the phone number as event_id
 
         try {
-            const response = await axios.post('/getimage', formData, {
+            const response = await axios.post(`${API_BASE_URL}/getimage`, formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data',
                 },

@@ -4,6 +4,9 @@ import { useNavigate } from 'react-router-dom';
 import backgroundImage from '../assets/background-image.jpg';
 import logo from '../assets/ZisionX.png';
 
+
+const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
+
 function RoleSelectionPage() {
     const [role, setRole] = useState('');
     const navigate = useNavigate();
@@ -11,7 +14,7 @@ function RoleSelectionPage() {
 
     const handleRoleSelection = async () => {
         try {
-            const response = await fetch('/update-role', {
+            const response = await fetch(`${API_BASE_URL}/update-role`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ mobile_number: mobileNumber, role }),
