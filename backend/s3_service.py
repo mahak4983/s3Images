@@ -76,11 +76,16 @@ def upload_file_to_s3(file, filename, bucket_name="zisionimages"):
     :return: URL of the uploaded file or raises an error if upload fails
     """
     try:
-        # Upload the file to S3
+        transfer_config = boto3.s3.transfer.TransferConfig(
+            multipart_threshold=5 * 1024 * 1024,  # 5MB threshold
+            max_concurrency=10,
+            multipart_chunksize=5 * 1024 * 1024  # 5MB chunks
+        )
         s3.upload_fileobj(
-            file,  # File object from the request
-            bucket_name,  # S3 bucket name
-            filename,  # Filename to be saved in S3
+            file,
+            bucket_name,
+            filename,
+            Config=transfer_config
         )
 
         # Return the URL of the uploaded file

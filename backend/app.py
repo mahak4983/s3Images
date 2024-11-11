@@ -6,6 +6,9 @@ from flask_cors import CORS
 import hashlib
 import boto3
 import os
+import io
+import threading
+from concurrent.futures import ThreadPoolExecutor
 from dotenv import load_dotenv
 
 from pymongo.mongo_client import MongoClient
@@ -34,6 +37,15 @@ db = client['ZisionX']  # Replace 'ZisionX' with your actual database name
 users_collection = db['users'] 
 
 OTP = "66666"
+
+def process_and_upload(file, filename, bucket_name):
+    """Compress, upload, and index faces for a single file."""
+    try:
+        file_url = upload_file_to_s3(file, filename, bucket_name)
+        indexing_result = index_faces_in_image(bucket_name, filename)
+        return {"filename": filename, "file_url": file_url, "indexing_result": indexing_result}
+    except Exception as e:
+        return {"error": str(e), "filename": filename}
 
 # Check if user is registered
 @app.route('/check-user', methods=['POST'])
@@ -110,33 +122,18 @@ def upload_multiple_files():
     if not files:
         return jsonify({"error": "No files selected"}), 400
 
-    uploaded_files = []
-    face_indexing_results = []
-    for file in files:
-        if file.filename == '':
-            continue  # Skip empty filenames
-
-        # Secure the filename
-        filename = secure_filename(file.filename)
-
-        try:
-            # Upload file to S3
-            file_url = upload_file_to_s3(file, filename, mobile_number)
-
-            uploaded_files.append(file_url)
-            indexing_result = index_faces_in_image(mobile_number, filename)
-            face_indexing_results.append({
-                "filename": filename,
-                "indexing_result": indexing_result
-            })
-            
-        except Exception as e:
-            return jsonify({"error": str(e)}), 500
+    uploaded_files_results = []
+    with ThreadPoolExecutor(max_workers=5) as executor:
+        futures = [
+            executor.submit(process_and_upload, file, secure_filename(file.filename), mobile_number)
+            for file in files
+        ]
+        for future in futures:
+            uploaded_files_results.append(future.result())
 
     return jsonify({
-        "message": "Files uploaded and faces indexed successfully",
-        "uploaded_files": uploaded_files,
-        "face_indexing_results": face_indexing_results
+        "message": "Files processed",
+        "results": uploaded_files_results
     }), 200
 
 @app.route('/getimage', methods=['POST'])

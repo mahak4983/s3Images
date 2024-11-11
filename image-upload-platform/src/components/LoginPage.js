@@ -4,13 +4,15 @@ import { useNavigate } from 'react-router-dom';
 import backgroundImage from '../assets/background-image.jpg';
 import logo from '../assets/ZisionX.png';
 
+const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
+
 function LoginPage() {
     const [mobileNumber, setMobileNumber] = useState('');
     const navigate = useNavigate();
 
     const handleSubmit = async () => {
         try {
-            const response = await fetch('/check-user', {
+            const response = await fetch(`${API_BASE_URL}/check-user`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ mobile_number: mobileNumber }),
